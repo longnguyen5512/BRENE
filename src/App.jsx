@@ -216,30 +216,8 @@ export function App() {
 		}
 	}
 
-	const handleTouchStart = (e) => {
-		if (e.target.closest('nav')) return
-		touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
-	}
-
-	const handleTouchEnd = (e) => {
-		if (e.target.closest('nav')) return
-		const dx = touchStart.current.x - e.changedTouches[0].clientX
-		const dy = touchStart.current.y - e.changedTouches[0].clientY
-		if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 3) {
-			const idx = TABS.findIndex((x) => x.id === activeTab)
-			const nextIdx = dx > 0 ? idx + 1 : idx - 1
-			if (nextIdx >= 0 && nextIdx < TABS.length) {
-				selectTab(TABS[nextIdx].id)
-			}
-		}
-	}
-
 	return (
-		<div
-			className="min-h-dvh flex flex-col safe-x safe-bottom bg-[var(--md-sys-color-surface)] text-[var(--md-sys-color-on-surface)]"
-			onTouchStart={handleTouchStart}
-			onTouchEnd={handleTouchEnd}
-		>
+		<div className="min-h-dvh flex flex-col safe-x safe-bottom bg-[var(--md-sys-color-surface)] text-[var(--md-sys-color-on-surface)]">
 			<div className="sticky top-0 z-30 safe-top bg-[var(--md-sys-color-surface-container-low)] border-b border-[var(--md-sys-color-outline-variant)]/70">
 				<header className="max-w-[680px] mx-auto px-4 pt-3 pb-2 flex items-center justify-between gap-2">
 					<div className="flex flex-wrap items-center gap-3 min-w-0">
