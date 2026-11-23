@@ -5,6 +5,7 @@
 #include <unistd.h>
 
 #include <chrono>
+#include <cerrno>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -60,7 +61,48 @@ static bool read_full(int fd, void *buf, size_t len) {
     return true;
 }
 
+static void parse_csv_uids(const std::string &csv, std::unordered_set<int> &out) {
+    out.clear();
+    std::istringstream iss(csv);
+    std::string tok;
+    while (std::getline(iss, tok, ',')) {
+        if (tok.empty()) continue;
+        char *end = nullptr;
+        long val = std::strtol(tok.c_str(), &end, 10);
+        if (end != tok.c_str() && val >= 10000) {
+            out.insert(static_cast<int>(val % 100000));
+        }
+    }
+}
+
+static bool load_state_from_file(const char *path) {
+    std::ifstream f(path);
+    if (!f.is_open()) return false;
+
+    bool hide_acc = false;
+    std::unordered_set<int> usb_uids;
+    std::unordered_set<int> acc_uids;
+    std::string line;
+    while (std::getline(f, line)) {
+        if (!line.empty() && line.back() == '\r') line.pop_back();
+        if (line.rfind("hide_accessibility=", 0) == 0) {
+            hide_acc = (line.substr(19) == "1");
+        } else if (line.rfind("usb_uids=", 0) == 0) {
+            parse_csv_uids(line.substr(9), usb_uids);
+        } else if (line.rfind("acc_uids=", 0) == 0) {
+            parse_csv_uids(line.substr(9), acc_uids);
+        }
+    }
+
+    g_hide_accessibility = hide_acc;
+    g_allow_uids = std::move(usb_uids);
+    g_acc_allow_uids = std::move(acc_uids);
+    g_last_refresh_ms = now_ms();
+    return true;
+}
+
 static void refresh_allowlist_locked() {
+    if (load_state_from_file("/data/system/brene_zygisk_state")) return;
     if (!g_api) return;
     int fd = g_api->connectCompanion();
     if (fd < 0) return;

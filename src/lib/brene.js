@@ -37,7 +37,11 @@ export const SWITCH_ACTIONS = {
 export function updateConfig(configKey, value) {
 	exec(`sed -i "s/^${configKey}=.*/${configKey}=${value}/" ${PERSISTENT_DIR}/config.sh`).then(
 		(result) => {
-			if (result.errno !== 0) toast('Failed to update config')
+			if (result.errno !== 0) {
+				toast('Failed to update config')
+			} else if (configKey === 'config_hide_accessibility') {
+				exec(`. /data/adb/modules/brene/utils.sh 2>/dev/null || true; PERSISTENT_DIR=${PERSISTENT_DIR} sync_zygisk_state`)
+			}
 		},
 	)
 }

@@ -182,28 +182,58 @@ brene_kernel_umount() {
 	${KSU_BIN} kernel notify-module-mounted
 	${KSU_BIN} kernel umount add -f 2 "$1" 2> /dev/null
 }
+resolve_pkg_list_to_uids() {
+	local list_file="$1"
+	[ -f "${list_file}" ] || return 0
+	awk '
+		NR==FNR {
+			gsub(/^[[:space:]]+|[[:space:]]+$/, "", $0)
+			if ($0 != "" && substr($0, 1, 1) != "#") allow[$0] = 1
+			next
+		}
+		($1 in allow) {
+			u = int($2) % 100000
+			if (u >= 10000 && !(u in seen)) {
+				seen[u] = 1
+				out = out (out ? "," : "") u
+			}
+		}
+		END { print out }
+	' "${list_file}" /data/system/packages.list 2>/dev/null
+}
+
+sync_zygisk_state() {
+	local state_file="/data/system/brene_zygisk_state"
+	local tmp_file="/data/system/.brene_zygisk_state.tmp"
+	local hide_acc="0"
+	local usb_uids=""
+	local acc_uids=""
+
+	if [ -f "${PERSISTENT_DIR}/config.sh" ] && grep -q '^config_hide_accessibility=1$' "${PERSISTENT_DIR}/config.sh" 2>/dev/null; then
+		hide_acc="1"
+	fi
+	usb_uids=$(resolve_pkg_list_to_uids "${PERSISTENT_DIR}/usb_debug_allow_apps.txt")
+	acc_uids=$(resolve_pkg_list_to_uids "${PERSISTENT_DIR}/accessibility_allow_apps.txt")
+
+	{
+		printf 'hide_accessibility=%s\n' "${hide_acc}"
+		printf 'usb_uids=%s\n' "${usb_uids}"
+		printf 'acc_uids=%s\n' "${acc_uids}"
+	} > "${tmp_file}" 2>/dev/null || return 0
+
+	chown 1000:1000 "${tmp_file}" 2>/dev/null || true
+	chmod 0644 "${tmp_file}" 2>/dev/null || true
+	chcon u:object_r:system_data_file:s0 "${tmp_file}" 2>/dev/null || true
+	mv -f "${tmp_file}" "${state_file}" 2>/dev/null || rm -f "${tmp_file}"
+}
+
 apply_usb_debug_allow_apps() {
+	sync_zygisk_state
 	local param="/sys/module/unix/parameters/jdwp_allow_uids"
 	local list_file="${PERSISTENT_DIR}/usb_debug_allow_apps.txt"
 	local uids=""
 	[ -w "${param}" ] || return 0
-	if [ -f "${list_file}" ]; then
-		uids=$(awk '
-			NR==FNR {
-				gsub(/^[[:space:]]+|[[:space:]]+$/, "", $0)
-				if ($0 != "" && substr($0, 1, 1) != "#") allow[$0] = 1
-				next
-			}
-			($1 in allow) {
-				u = int($2) % 100000
-				if (u >= 10000 && !(u in seen)) {
-					seen[u] = 1
-					out = out (out ? "," : "") u
-				}
-			}
-			END { print out }
-		' "${list_file}" /data/system/packages.list 2>/dev/null)
-	fi
+	uids=$(resolve_pkg_list_to_uids "${list_file}")
 	printf '%s' "${uids}" > "${param}" 2>/dev/null || true
 
 	local tls_param="/sys/module/unix/parameters/adb_tls_port"

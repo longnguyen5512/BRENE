@@ -83,6 +83,18 @@ PERSISTENT_DIR=${PERSISTENT_DIR} apply_usb_debug_allow_apps
 		})
 	}
 
+	const saveAccAllowApps = (content) => {
+		exec(`
+cat <<'UNIQUE_EOF' > ${PERSISTENT_DIR}/accessibility_allow_apps.txt
+${content}
+UNIQUE_EOF
+. /data/adb/modules/brene/utils.sh 2>/dev/null || true
+PERSISTENT_DIR=${PERSISTENT_DIR} sync_zygisk_state
+		`).then((result) => {
+			toast(result.errno === 0 ? t('Saved and applied') : result.stderr)
+		})
+	}
+
 	const handleManualApply = async () => {
 		const active = MANUAL_TABS.find((x) => x.id === subTab)
 		if (!active) return
@@ -94,7 +106,7 @@ PERSISTENT_DIR=${PERSISTENT_DIR} apply_usb_debug_allow_apps
 		}
 
 		if (active.id === 'acc') {
-			writePersistentFile('accessibility_allow_apps.txt', content, t('Saved and applied'))
+			saveAccAllowApps(content)
 			return
 		}
 
@@ -300,7 +312,7 @@ PERSISTENT_DIR=${PERSISTENT_DIR} apply_usb_debug_allow_apps
 					setTexts((prev) => ({ ...prev, [subTab]: content }))
 					setPickerOpen(false)
 					if (subTab === 'acc') {
-						writePersistentFile('accessibility_allow_apps.txt', content, t('Saved and applied'))
+						saveAccAllowApps(content)
 					} else {
 						saveUsbDebugApps(content)
 					}

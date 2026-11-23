@@ -54,10 +54,21 @@ public final class SettingsBinderProxy extends android.content.ContentProviderNa
     public Bundle call(AttributionSource attributionSource, String authority, String method, String arg, Bundle extras) throws RemoteException {
         if ("GET_global".equals(method) && isHiddenAdbKey(arg)) {
             int uid = Binder.getCallingUid();
-            if (uid >= 10000 && !nativeIsUidAllowed(uid)) {
-                Bundle b = new Bundle();
-                b.putString("value", "0");
-                return b;
+            if (uid >= 10000) {
+                if (!nativeIsUidAllowed(uid)) {
+                    Bundle b = new Bundle();
+                    b.putString("value", "0");
+                    return b;
+                }
+                long token = Binder.clearCallingIdentity();
+                try {
+                    AttributionSource sysAttr = new AttributionSource.Builder(1000)
+                        .setPackageName("android")
+                        .build();
+                    return orig.call(sysAttr, authority, method, arg, extras);
+                } finally {
+                    Binder.restoreCallingIdentity(token);
+                }
             }
         } else if ("GET_secure".equals(method) && nativeIsHideAccessibility()) {
             String fakeVal = getHiddenAccessibilityValue(arg);
