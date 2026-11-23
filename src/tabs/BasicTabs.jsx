@@ -167,6 +167,16 @@ export function HidingTab({ config, onToggle }) {
 					}
 				/>
 				<CardRow
+					title={t('Hide Accessibility')}
+					subtitle={t('Hide Accessibility Services from apps (Settings.Secure)')}
+					right={
+						<M3Switch
+							checked={!!config.hide_accessibility}
+							onChange={(v) => onToggle('hide_accessibility', v)}
+						/>
+					}
+				/>
+				<CardRow
 					title={t('Hide Vector Injection (Xposed Framework)')}
 					right={
 						<M3Switch

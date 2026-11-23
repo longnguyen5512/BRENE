@@ -26,11 +26,27 @@ public final class SettingsBinderProxy extends android.content.ContentProviderNa
     }
 
     public static native boolean nativeIsUidAllowed(int uid);
+    public static native boolean nativeIsHideAccessibility();
 
     private static boolean isHiddenAdbKey(String key) {
         return "adb_enabled".equals(key)
             || "adb_wifi_enabled".equals(key)
             || "development_settings_enabled".equals(key);
+    }
+
+    private static String getHiddenAccessibilityValue(String key) {
+        if ("accessibility_enabled".equals(key)
+                || "touch_exploration_enabled".equals(key)
+                || "accessibility_display_magnification_enabled".equals(key)) {
+            return "0";
+        }
+        if ("enabled_accessibility_services".equals(key)
+                || "accessibility_shortcut_target_service".equals(key)
+                || "accessibility_button_targets".equals(key)
+                || "accessibility_qs_targets".equals(key)) {
+            return "";
+        }
+        return null;
     }
 
     @Override
@@ -41,6 +57,16 @@ public final class SettingsBinderProxy extends android.content.ContentProviderNa
                 Bundle b = new Bundle();
                 b.putString("value", "0");
                 return b;
+            }
+        } else if ("GET_secure".equals(method) && nativeIsHideAccessibility()) {
+            String fakeVal = getHiddenAccessibilityValue(arg);
+            if (fakeVal != null) {
+                int uid = Binder.getCallingUid();
+                if (uid >= 10000 && !nativeIsUidAllowed(uid)) {
+                    Bundle b = new Bundle();
+                    b.putString("value", fakeVal);
+                    return b;
+                }
             }
         }
         return orig.call(attributionSource, authority, method, arg, extras);

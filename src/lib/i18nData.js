@@ -71,6 +71,7 @@ export const CORE = {
 		'Hide SELinux modification': 'Ẩn chỉnh sửa SELinux',
 		'SELinux Hide - sanitize /sys/fs/selinux access results for app UIDs': 'SELinux Hide - làm sạch kết quả truy vấn /sys/fs/selinux cho app UID',
 		'Hide /system/addon.d': 'Ẩn /system/addon.d', 'Hide Gapps': 'Ẩn GApps', 'Hide Custom ROM paths': 'Ẩn đường dẫn Custom ROM',
+		'Hide Accessibility': 'Ẩn Trợ năng', 'Hide Accessibility Services from apps (Settings.Secure)': 'Ẩn dịch vụ Trợ năng khỏi ứng dụng (Settings.Secure)',
 		'Disable all modules': 'Tắt tất cả module', 'Enable all modules': 'Bật tất cả module',
 		'Hide Custom ROM paths (Extended)': 'Ẩn đường dẫn Custom ROM (Mở rộng)', 'Hide LineageOS strings': 'Ẩn chuỗi LineageOS',
 		'Spoof /system/etc/hosts': 'Giả mạo /system/etc/hosts', 'Some custom ROMs use a custom hosts file': 'Một số Custom ROM dùng file hosts tùy biến',
@@ -126,6 +127,7 @@ export const CORE = {
 		'Enable or disable BRENE logs': '开启或关闭 BRENE 日志', 'SU compat': 'SU 兼容模式',
 		'Kernel umount': 'Kernel Umount', 'Hide SELinux modification': '隐藏 SELinux 修改',
 		'Hide /system/addon.d': '隐藏 /system/addon.d', 'Hide Gapps': '隐藏 GApps', 'Hide Custom ROM paths': '隐藏第三方 ROM 路径',
+		'Hide Accessibility': '隐藏无障碍', 'Hide Accessibility Services from apps (Settings.Secure)': '向应用隐藏无障碍服务 (Settings.Secure)',
 		'Disable all modules': '禁用所有模块', 'Enable all modules': '启用所有模块',
 		'Hide Custom ROM paths (Extended)': '隐藏第三方 ROM 路径（扩展）', 'Hide LineageOS strings': '隐藏 LineageOS 字符串',
 		'Spoof /system/etc/hosts': '伪装 /system/etc/hosts', 'Spoof /system/lib64/libstagefright.so': '伪装 /system/lib64/libstagefright.so',
@@ -156,7 +158,7 @@ export const CORE = {
 		'Reset settings': 'Ayarları sıfırla', 'Select Apps': 'Uygulama Seç', Apply: 'Uygula', Cancel: 'İptal', Language: 'Dil',
 		'USB Debug Allow Apps': 'USB Hata Ayıklama İzinli Uygulamalar', 'Search app or package': 'Uygulama veya paket ara', 'Show system apps': 'Sistem uygulamalarını göster',
 		'Saved and applied': 'Kaydedildi ve uygulandı', 'Success, reboot to apply': 'Başarılı, uygulamak için yeniden başlatın', 'Loading apps...': 'Uygulamalar yükleniyor...',
-		'Hide Gapps': 'GApps Gizle', 'Disable all modules': 'Tüm modülleri devre dışı bırak', 'Enable all modules': 'Tüm modülleri etkinleştir',
+		'Hide Gapps': 'GApps Gizle', 'Hide Accessibility': 'Erişilebilirliği Gizle', 'Hide Accessibility Services from apps (Settings.Secure)': 'Erişilebilirlik Hizmetlerini uygulamalardan gizle (Settings.Secure)', 'Disable all modules': 'Tüm modülleri devre dışı bırak', 'Enable all modules': 'Tüm modülleri etkinleştir',
 	},
 	ru: {
 		Home: 'Главная', Android: 'Android', Hiding: 'Скрытие', Spoofing: 'Подмена', SUSFS: 'SUSFS', KSU: 'KSU', ROM: 'ROM', Advanced: 'Дополнительно', Info: 'Инфо',
@@ -174,7 +176,7 @@ export const CORE = {
 		'Reset settings': 'Сбросить настройки', 'Select Apps': 'Выбрать приложения', Apply: 'Применить', Cancel: 'Отмена', Language: 'Язык',
 		'USB Debug Allow Apps': 'Приложения для отладки USB', 'Search app or package': 'Поиск приложения или пакета', 'Show system apps': 'Показать системные приложения',
 		'Saved and applied': 'Сохранено и применено', 'Success, reboot to apply': 'Готово, перезагрузите для применения', 'Loading apps...': 'Загрузка приложений...',
-		'Hide Gapps': 'Скрыть GApps', 'Disable all modules': 'Отключить все модули', 'Enable all modules': 'Включить все модули',
+		'Hide Gapps': 'Скрыть GApps', 'Hide Accessibility': 'Скрыть спец. возможности', 'Hide Accessibility Services from apps (Settings.Secure)': 'Скрыть службы спец. возможностей от приложений (Settings.Secure)', 'Disable all modules': 'Отключить все модули', 'Enable all modules': 'Включить все модули',
 	},
 	es: {
 		Home: 'Inicio', Android: 'Android', Hiding: 'Ocultar', Spoofing: 'Suplantar', SUSFS: 'SUSFS', KSU: 'KSU', ROM: 'ROM', Advanced: 'Avanzado', Info: 'Info',
@@ -190,7 +192,7 @@ export const CORE = {
 		'Reset settings': 'Restablecer ajustes', 'Select Apps': 'Seleccionar apps', Apply: 'Aplicar', Cancel: 'Cancelar', Language: 'Idioma',
 		'USB Debug Allow Apps': 'Apps permitidas para depuración USB', 'Search app or package': 'Buscar app o paquete', 'Show system apps': 'Mostrar apps del sistema',
 		'Saved and applied': 'Guardado y aplicado', 'Success, reboot to apply': 'Éxito, reinicia para aplicar', 'Loading apps...': 'Cargando aplicaciones...',
-		'Hide Gapps': 'Ocultar GApps', 'Disable all modules': 'Desactivar todos los módulos', 'Enable all modules': 'Activar todos los módulos',
+		'Hide Gapps': 'Ocultar GApps', 'Hide Accessibility': 'Ocultar Accesibilidad', 'Hide Accessibility Services from apps (Settings.Secure)': 'Ocultar servicios de accesibilidad de las apps (Settings.Secure)', 'Disable all modules': 'Desactivar todos los módulos', 'Enable all modules': 'Activar todos los módulos',
 	},
 	pt: {
 		Home: 'Início', Android: 'Android', Hiding: 'Ocultar', Spoofing: 'Simulação', SUSFS: 'SUSFS', KSU: 'KSU', ROM: 'ROM', Advanced: 'Avançado', Info: 'Info',
@@ -205,7 +207,7 @@ export const CORE = {
 		'Reset settings': 'Redefinir configurações', 'Select Apps': 'Selecionar apps', Apply: 'Aplicar', Cancel: 'Cancelar', Language: 'Idioma',
 		'USB Debug Allow Apps': 'Apps permitidos para depuração USB', 'Search app or package': 'Pesquisar app ou pacote', 'Show system apps': 'Mostrar apps do sistema',
 		'Saved and applied': 'Salvo e aplicado', 'Success, reboot to apply': 'Sucesso, reinicie para aplicar', 'Loading apps...': 'Carregando aplicativos...',
-		'Hide Gapps': 'Ocultar GApps', 'Disable all modules': 'Desativar todos os módulos', 'Enable all modules': 'Ativar todos os módulos',
+		'Hide Gapps': 'Ocultar GApps', 'Hide Accessibility': 'Ocultar Acessibilidade', 'Hide Accessibility Services from apps (Settings.Secure)': 'Ocultar serviços de acessibilidade dos apps (Settings.Secure)', 'Disable all modules': 'Desativar todos os módulos', 'Enable all modules': 'Ativar todos os módulos',
 	},
 	de: {
 		Home: 'Start', Android: 'Android', Hiding: 'Verbergen', Spoofing: 'Spoofing', SUSFS: 'SUSFS', KSU: 'KSU', ROM: 'ROM', Advanced: 'Erweitert', Info: 'Info',
@@ -220,7 +222,7 @@ export const CORE = {
 		'Reset settings': 'Einstellungen zurücksetzen', 'Select Apps': 'Apps auswählen', Apply: 'Anwenden', Cancel: 'Abbrechen', Language: 'Sprache',
 		'USB Debug Allow Apps': 'Apps für USB-Debugging erlauben', 'Search app or package': 'App oder Paket suchen', 'Show system apps': 'System-Apps anzeigen',
 		'Saved and applied': 'Gespeichert und angewendet', 'Success, reboot to apply': 'Erfolg, zum Anwenden neu starten', 'Loading apps...': 'Apps werden geladen...',
-		'Hide Gapps': 'GApps verbergen', 'Disable all modules': 'Alle Module deaktivieren', 'Enable all modules': 'Alle Module aktivieren',
+		'Hide Gapps': 'GApps verbergen', 'Hide Accessibility': 'Bedienungshilfen verbergen', 'Hide Accessibility Services from apps (Settings.Secure)': 'Bedienungshilfen vor Apps verbergen (Settings.Secure)', 'Disable all modules': 'Alle Module deaktivieren', 'Enable all modules': 'Alle Module aktivieren',
 	},
 	fr: {
 		Home: 'Accueil', Android: 'Android', Hiding: 'Masquage', Spoofing: 'Usurpation', SUSFS: 'SUSFS', KSU: 'KSU', ROM: 'ROM', Advanced: 'Avancé', Info: 'Info',
@@ -235,7 +237,7 @@ export const CORE = {
 		'Reset settings': 'Réinitialiser', 'Select Apps': 'Choisir des apps', Apply: 'Appliquer', Cancel: 'Annuler', Language: 'Langue',
 		'USB Debug Allow Apps': 'Apps autorisées (Débogage USB)', 'Search app or package': 'Rechercher app ou paquet', 'Show system apps': 'Afficher les apps système',
 		'Saved and applied': 'Enregistré et appliqué', 'Success, reboot to apply': 'Succès, redémarrez pour appliquer', 'Loading apps...': 'Chargement des applications...',
-		'Hide Gapps': 'Masquer GApps', 'Disable all modules': 'Désactiver tous les modules', 'Enable all modules': 'Activer tous les modules',
+		'Hide Gapps': 'Masquer GApps', 'Hide Accessibility': 'Masquer Accessibilité', 'Hide Accessibility Services from apps (Settings.Secure)': "Masquer les services d'accessibilité aux apps (Settings.Secure)", 'Disable all modules': 'Désactiver tous les modules', 'Enable all modules': 'Activer tous les modules',
 	},
 	it: {
 		Home: 'Home', Android: 'Android', Hiding: 'Nascondi', Spoofing: 'Spoofing', SUSFS: 'SUSFS', KSU: 'KSU', ROM: 'ROM', Advanced: 'Avanzate', Info: 'Info',
@@ -250,7 +252,7 @@ export const CORE = {
 		'Reset settings': 'Ripristina impostazioni', 'Select Apps': 'Seleziona app', Apply: 'Applica', Cancel: 'Annulla', Language: 'Lingua',
 		'USB Debug Allow Apps': 'App consentite Debug USB', 'Search app or package': 'Cerca app o pacchetto', 'Show system apps': 'Mostra app di sistema',
 		'Saved and applied': 'Salvato e applicato', 'Success, reboot to apply': 'Fatto, riavvia per applicare', 'Loading apps...': 'Caricamento app...',
-		'Hide Gapps': 'Nascondi GApps', 'Disable all modules': 'Disattiva tutti i moduli', 'Enable all modules': 'Attiva tutti i moduli',
+		'Hide Gapps': 'Nascondi GApps', 'Hide Accessibility': 'Nascondi Accessibilità', 'Hide Accessibility Services from apps (Settings.Secure)': 'Nascondi servizi di accessibilità alle app (Settings.Secure)', 'Disable all modules': 'Disattiva tutti i moduli', 'Enable all modules': 'Attiva tutti i moduli',
 	},
 	id: {
 		Home: 'Beranda', Android: 'Android', Hiding: 'Sembunyikan', Spoofing: 'Spoofing', SUSFS: 'SUSFS', KSU: 'KSU', ROM: 'ROM', Advanced: 'Lanjutan', Info: 'Info',
@@ -265,7 +267,7 @@ export const CORE = {
 		'Reset settings': 'Setel ulang', 'Select Apps': 'Pilih Aplikasi', Apply: 'Terapkan', Cancel: 'Batal', Language: 'Bahasa',
 		'USB Debug Allow Apps': 'Aplikasi Diizinkan Debug USB', 'Search app or package': 'Cari aplikasi atau paket', 'Show system apps': 'Tampilkan aplikasi sistem',
 		'Saved and applied': 'Disimpan dan diterapkan', 'Success, reboot to apply': 'Berhasil, mulai ulang untuk menerapkan', 'Loading apps...': 'Memuat aplikasi...',
-		'Hide Gapps': 'Sembunyikan GApps', 'Disable all modules': 'Nonaktifkan semua modul', 'Enable all modules': 'Aktifkan semua modul',
+		'Hide Gapps': 'Sembunyikan GApps', 'Hide Accessibility': 'Sembunyikan Aksesibilitas', 'Hide Accessibility Services from apps (Settings.Secure)': 'Sembunyikan layanan aksesibilitas dari aplikasi (Settings.Secure)', 'Disable all modules': 'Nonaktifkan semua modul', 'Enable all modules': 'Aktifkan semua modul',
 	},
 	ar: {
 		Home: 'الرئيسية', Android: 'أندرويد', Hiding: 'الإخفاء', Spoofing: 'التمويه', SUSFS: 'SUSFS', KSU: 'KSU', ROM: 'ROM', Advanced: 'متقدم', Info: 'معلومات',
@@ -280,7 +282,7 @@ export const CORE = {
 		'Reset settings': 'إعادة تعيين', 'Select Apps': 'اختر التطبيقات', Apply: 'تطبيق', Cancel: 'إلغاء', Language: 'اللغة',
 		'USB Debug Allow Apps': 'تطبيقات تصحيح USB المسموح بها', 'Search app or package': 'ابحث عن تطبيق أو حزمة', 'Show system apps': 'إظهار تطبيقات النظام',
 		'Saved and applied': 'تم الحفظ والتطبيق', 'Success, reboot to apply': 'تم بنجاح، أعد التشغيل للتطبيق', 'Loading apps...': 'جاري تحميل التطبيقات...',
-		'Hide Gapps': 'إخفاء GApps', 'Disable all modules': 'تعطيل جميع الوحدات', 'Enable all modules': 'تفعيل جميع الوحدات',
+		'Hide Gapps': 'إخفاء GApps', 'Hide Accessibility': 'إخفاء إمكانية الوصول', 'Hide Accessibility Services from apps (Settings.Secure)': 'إخفاء خدمات إمكانية الوصول عن التطبيقات (Settings.Secure)', 'Disable all modules': 'تعطيل جميع الوحدات', 'Enable all modules': 'تفعيل جميع الوحدات',
 	},
 	ja: {
 		Home: 'ホーム', Android: 'Android', Hiding: '非表示', Spoofing: '偽装', SUSFS: 'SUSFS', KSU: 'KSU', ROM: 'ROM', Advanced: '詳細', Info: '情報',
@@ -295,7 +297,7 @@ export const CORE = {
 		'Reset settings': '設定をリセット', 'Select Apps': 'アプリを選択', Apply: '適用', Cancel: 'キャンセル', Language: '言語',
 		'USB Debug Allow Apps': 'USB デバッグ許可アプリ', 'Search app or package': 'アプリまたはパッケージを検索', 'Show system apps': 'システムアプリを表示',
 		'Saved and applied': '保存して適用しました', 'Success, reboot to apply': '成功しました。再起動して適用してください', 'Loading apps...': 'アプリを読み込み中...',
-		'Hide Gapps': 'GApps を隠す', 'Disable all modules': 'すべてのモジュールを無効化', 'Enable all modules': 'すべてのモジュールを有効化',
+		'Hide Gapps': 'GApps を隠す', 'Hide Accessibility': 'ユーザー補助を隠す', 'Hide Accessibility Services from apps (Settings.Secure)': 'アプリからユーザー補助サービスを隠す (Settings.Secure)', 'Disable all modules': 'すべてのモジュールを無効化', 'Enable all modules': 'すべてのモジュールを有効化',
 	},
 	ko: {
 		Home: '홈', Android: 'Android', Hiding: '숨기기', Spoofing: '스푸핑', SUSFS: 'SUSFS', KSU: 'KSU', ROM: 'ROM', Advanced: '고급', Info: '정보',
@@ -310,7 +312,7 @@ export const CORE = {
 		'Reset settings': '설정 초기화', 'Select Apps': '앱 선택', Apply: '적용', Cancel: '취소', Language: '언어',
 		'USB Debug Allow Apps': 'USB 디버깅 허용 앱', 'Search app or package': '앱 또는 패키지 검색', 'Show system apps': '시스템 앱 표시',
 		'Saved and applied': '저장 및 적용됨', 'Success, reboot to apply': '완료, 적용하려면 재부팅하세요', 'Loading apps...': '앱 목록 불러오는 중...',
-		'Hide Gapps': 'GApps 숨기기', 'Disable all modules': '모든 모듈 비활성화', 'Enable all modules': '모든 모듈 활성화',
+		'Hide Gapps': 'GApps 숨기기', 'Hide Accessibility': '접근성 숨기기', 'Hide Accessibility Services from apps (Settings.Secure)': '앱에서 접근성 서비스 숨기기 (Settings.Secure)', 'Disable all modules': '모든 모듈 비활성화', 'Enable all modules': '모든 모듈 활성화',
 	},
 	hi: {
 		Home: 'होम', Android: 'Android', Hiding: 'छिपाएँ', Spoofing: 'स्पूफिंग', SUSFS: 'SUSFS', KSU: 'KSU', ROM: 'ROM', Advanced: 'उन्नत', Info: 'जानकारी',
@@ -325,7 +327,7 @@ export const CORE = {
 		'Reset settings': 'सेटिंग्स रीसेट करें', 'Select Apps': 'ऐप्स चुनें', Apply: 'लागू करें', Cancel: 'रद्द करें', Language: 'भाषा',
 		'USB Debug Allow Apps': 'USB डिबगिंग अनुमत ऐप्स', 'Search app or package': 'ऐप या पैकेज खोजें', 'Show system apps': 'सिस्टम ऐप्स दिखाएँ',
 		'Saved and applied': 'सहेजा और लागू किया गया', 'Success, reboot to apply': 'सफल, लागू करने के लिए रीबूट करें', 'Loading apps...': 'ऐप्स लोड हो रहे हैं...',
-		'Hide Gapps': 'GApps छिपाएँ', 'Disable all modules': 'सभी मॉड्यूल अक्षम करें', 'Enable all modules': 'सभी मॉड्यूल सक्षम करें',
+		'Hide Gapps': 'GApps छिपाएँ', 'Hide Accessibility': 'एक्सेसिबिलिटी छिपाएँ', 'Hide Accessibility Services from apps (Settings.Secure)': 'ऐप्स से एक्सेसिबिलिटी सेवाएँ छिपाएँ (Settings.Secure)', 'Disable all modules': 'सभी मॉड्यूल अक्षम करें', 'Enable all modules': 'सभी मॉड्यूल सक्षम करें',
 	},
 }
 

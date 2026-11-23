@@ -28,6 +28,7 @@ static JavaVM *g_jvm = nullptr;
 
 static std::mutex g_cache_mu;
 static std::unordered_set<int> g_allow_uids;
+static bool g_hide_accessibility = false;
 static int64_t g_last_refresh_ms = 0;
 
 static int64_t now_ms() {
@@ -63,10 +64,13 @@ static void refresh_allowlist_locked() {
     int fd = g_api->connectCompanion();
     if (fd < 0) return;
 
+    uint8_t flags = 0;
     uint32_t count = 0;
-    if (read_full(fd, &count, sizeof(count)) && count <= 1024) {
+    if (read_full(fd, &flags, sizeof(flags)) &&
+        read_full(fd, &count, sizeof(count)) && count <= 1024) {
         std::vector<uint32_t> uids(count);
         if (count == 0 || read_full(fd, uids.data(), count * sizeof(uint32_t))) {
+            g_hide_accessibility = (flags & 1) != 0;
             g_allow_uids.clear();
             for (uint32_t u : uids) g_allow_uids.insert(static_cast<int>(u));
             g_last_refresh_ms = now_ms();
@@ -85,6 +89,15 @@ static jboolean JNICALL native_is_uid_allowed(JNIEnv *, jclass, jint uid) {
         refresh_allowlist_locked();
     }
     return g_allow_uids.count(app_id) ? JNI_TRUE : JNI_FALSE;
+}
+
+static jboolean JNICALL native_is_hide_accessibility(JNIEnv *, jclass) {
+    std::lock_guard<std::mutex> lock(g_cache_mu);
+    int64_t cur = now_ms();
+    if (g_last_refresh_ms == 0 || (cur - g_last_refresh_ms) >= 3000) {
+        refresh_allowlist_locked();
+    }
+    return g_hide_accessibility ? JNI_TRUE : JNI_FALSE;
 }
 
 static void install_in_system_server() {
@@ -127,8 +140,9 @@ static void install_in_system_server() {
 
     JNINativeMethod natives[] = {
         {"nativeIsUidAllowed", "(I)Z", reinterpret_cast<void *>(native_is_uid_allowed)},
+        {"nativeIsHideAccessibility", "()Z", reinterpret_cast<void *>(native_is_hide_accessibility)},
     };
-    if (env->RegisterNatives(proxy_cls, natives, 1) != JNI_OK) {
+    if (env->RegisterNatives(proxy_cls, natives, 2) != JNI_OK) {
         LOGE("RegisterNatives failed");
         g_jvm->DetachCurrentThread();
         return;
@@ -188,6 +202,19 @@ static std::string trim(const std::string &s) {
 }
 
 static void brene_companion(int sock) {
+    uint8_t flags = 0;
+    {
+        std::ifstream cf("/data/adb/brene/config.sh");
+        std::string line;
+        while (std::getline(cf, line)) {
+            std::string t = trim(line);
+            if (t == "config_hide_accessibility=1") {
+                flags |= 1;
+                break;
+            }
+        }
+    }
+
     std::unordered_set<std::string> pkgs;
     {
         std::ifstream f("/data/adb/brene/usb_debug_allow_apps.txt");
@@ -217,7 +244,8 @@ static void brene_companion(int sock) {
 
     std::vector<uint32_t> out(uid_set.begin(), uid_set.end());
     uint32_t count = static_cast<uint32_t>(out.size());
-    if (write_full(sock, &count, sizeof(count)) && count > 0) {
+    if (write_full(sock, &flags, sizeof(flags)) &&
+        write_full(sock, &count, sizeof(count)) && count > 0) {
         write_full(sock, out.data(), count * sizeof(uint32_t));
     }
 }
