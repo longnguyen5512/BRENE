@@ -87,6 +87,7 @@ custom_sus_path_loop.txt
 custom_open_redirect.txt
 custom_sus_path_uid_filter.txt
 usb_debug_allow_apps.txt
+accessibility_allow_apps.txt
 remove_sus_dir_sdcard_android_data_media_obb.txt
 hide_data_local_tmp_exceptions.txt
 hide_non_standard_sdcard_paths_exceptions.txt

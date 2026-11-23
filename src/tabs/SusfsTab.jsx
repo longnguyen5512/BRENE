@@ -36,6 +36,12 @@ const MANUAL_TABS = [
 		fieldLabel: 'USB Debug Allow Apps (1 package/line)',
 		file: 'usb_debug_allow_apps.txt',
 	},
+	{
+		id: 'acc',
+		label: 'Accessibility Allow Apps',
+		fieldLabel: 'Accessibility Allow Apps (1 package/line)',
+		file: 'accessibility_allow_apps.txt',
+	},
 ]
 
 export function SusfsTab({ status, config, onToggle, uname, setUname }) {
@@ -49,6 +55,7 @@ export function SusfsTab({ status, config, onToggle, uname, setUname }) {
 		redirect: '',
 		uid: '',
 		usb: '',
+		acc: '',
 	})
 
 	useEffect(() => {
@@ -83,6 +90,11 @@ PERSISTENT_DIR=${PERSISTENT_DIR} apply_usb_debug_allow_apps
 
 		if (active.id === 'usb') {
 			saveUsbDebugApps(content)
+			return
+		}
+
+		if (active.id === 'acc') {
+			writePersistentFile('accessibility_allow_apps.txt', content, t('Saved and applied'))
 			return
 		}
 
@@ -255,7 +267,7 @@ PERSISTENT_DIR=${PERSISTENT_DIR} apply_usb_debug_allow_apps
 				</div>
 
 				<div className="p-4 flex flex-col gap-3">
-					{activeMeta.id === 'usb' && (
+					{(activeMeta.id === 'usb' || activeMeta.id === 'acc') && (
 						<M3Button
 							variant="outlined"
 							onClick={() => setPickerOpen(true)}
@@ -283,11 +295,15 @@ PERSISTENT_DIR=${PERSISTENT_DIR} apply_usb_debug_allow_apps
 			<AppPickerDialog
 				open={pickerOpen}
 				onClose={() => setPickerOpen(false)}
-				initialText={texts.usb}
+				initialText={texts[subTab] || ''}
 				onConfirm={(content) => {
-					setTexts((prev) => ({ ...prev, usb: content }))
+					setTexts((prev) => ({ ...prev, [subTab]: content }))
 					setPickerOpen(false)
-					saveUsbDebugApps(content)
+					if (subTab === 'acc') {
+						writePersistentFile('accessibility_allow_apps.txt', content, t('Saved and applied'))
+					} else {
+						saveUsbDebugApps(content)
+					}
 				}}
 			/>
 		</div>

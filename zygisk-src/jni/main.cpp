@@ -28,6 +28,7 @@ static JavaVM *g_jvm = nullptr;
 
 static std::mutex g_cache_mu;
 static std::unordered_set<int> g_allow_uids;
+static std::unordered_set<int> g_acc_allow_uids;
 static bool g_hide_accessibility = false;
 static int64_t g_last_refresh_ms = 0;
 
@@ -65,15 +66,22 @@ static void refresh_allowlist_locked() {
     if (fd < 0) return;
 
     uint8_t flags = 0;
-    uint32_t count = 0;
+    uint32_t usb_count = 0;
+    uint32_t acc_count = 0;
     if (read_full(fd, &flags, sizeof(flags)) &&
-        read_full(fd, &count, sizeof(count)) && count <= 1024) {
-        std::vector<uint32_t> uids(count);
-        if (count == 0 || read_full(fd, uids.data(), count * sizeof(uint32_t))) {
-            g_hide_accessibility = (flags & 1) != 0;
-            g_allow_uids.clear();
-            for (uint32_t u : uids) g_allow_uids.insert(static_cast<int>(u));
-            g_last_refresh_ms = now_ms();
+        read_full(fd, &usb_count, sizeof(usb_count)) && usb_count <= 1024) {
+        std::vector<uint32_t> usb_uids(usb_count);
+        if ((usb_count == 0 || read_full(fd, usb_uids.data(), usb_count * sizeof(uint32_t))) &&
+            read_full(fd, &acc_count, sizeof(acc_count)) && acc_count <= 1024) {
+            std::vector<uint32_t> acc_uids(acc_count);
+            if (acc_count == 0 || read_full(fd, acc_uids.data(), acc_count * sizeof(uint32_t))) {
+                g_hide_accessibility = (flags & 1) != 0;
+                g_allow_uids.clear();
+                for (uint32_t u : usb_uids) g_allow_uids.insert(static_cast<int>(u));
+                g_acc_allow_uids.clear();
+                for (uint32_t u : acc_uids) g_acc_allow_uids.insert(static_cast<int>(u));
+                g_last_refresh_ms = now_ms();
+            }
         }
     }
     close(fd);
@@ -89,6 +97,18 @@ static jboolean JNICALL native_is_uid_allowed(JNIEnv *, jclass, jint uid) {
         refresh_allowlist_locked();
     }
     return g_allow_uids.count(app_id) ? JNI_TRUE : JNI_FALSE;
+}
+
+static jboolean JNICALL native_is_acc_uid_allowed(JNIEnv *, jclass, jint uid) {
+    int app_id = uid % 100000;
+    if (app_id < 10000) return JNI_TRUE;
+
+    std::lock_guard<std::mutex> lock(g_cache_mu);
+    int64_t cur = now_ms();
+    if (g_last_refresh_ms == 0 || (cur - g_last_refresh_ms) >= 3000) {
+        refresh_allowlist_locked();
+    }
+    return g_acc_allow_uids.count(app_id) ? JNI_TRUE : JNI_FALSE;
 }
 
 static jboolean JNICALL native_is_hide_accessibility(JNIEnv *, jclass) {
@@ -140,9 +160,10 @@ static void install_in_system_server() {
 
     JNINativeMethod natives[] = {
         {"nativeIsUidAllowed", "(I)Z", reinterpret_cast<void *>(native_is_uid_allowed)},
+        {"nativeIsAccUidAllowed", "(I)Z", reinterpret_cast<void *>(native_is_acc_uid_allowed)},
         {"nativeIsHideAccessibility", "()Z", reinterpret_cast<void *>(native_is_hide_accessibility)},
     };
-    if (env->RegisterNatives(proxy_cls, natives, 2) != JNI_OK) {
+    if (env->RegisterNatives(proxy_cls, natives, 3) != JNI_OK) {
         LOGE("RegisterNatives failed");
         g_jvm->DetachCurrentThread();
         return;
@@ -201,6 +222,15 @@ static std::string trim(const std::string &s) {
     return s.substr(b, e - b + 1);
 }
 
+static void load_pkg_file(const char *path, std::unordered_set<std::string> &out) {
+    std::ifstream f(path);
+    std::string line;
+    while (std::getline(f, line)) {
+        std::string t = trim(line);
+        if (!t.empty() && t[0] != '#') out.insert(t);
+    }
+}
+
 static void brene_companion(int sock) {
     uint8_t flags = 0;
     {
@@ -215,18 +245,14 @@ static void brene_companion(int sock) {
         }
     }
 
-    std::unordered_set<std::string> pkgs;
-    {
-        std::ifstream f("/data/adb/brene/usb_debug_allow_apps.txt");
-        std::string line;
-        while (std::getline(f, line)) {
-            std::string t = trim(line);
-            if (!t.empty() && t[0] != '#') pkgs.insert(t);
-        }
-    }
+    std::unordered_set<std::string> usb_pkgs;
+    std::unordered_set<std::string> acc_pkgs;
+    load_pkg_file("/data/adb/brene/usb_debug_allow_apps.txt", usb_pkgs);
+    load_pkg_file("/data/adb/brene/accessibility_allow_apps.txt", acc_pkgs);
 
-    std::unordered_set<uint32_t> uid_set;
-    if (!pkgs.empty()) {
+    std::unordered_set<uint32_t> usb_uid_set;
+    std::unordered_set<uint32_t> acc_uid_set;
+    if (!usb_pkgs.empty() || !acc_pkgs.empty()) {
         std::ifstream pf("/data/system/packages.list");
         std::string line;
         while (std::getline(pf, line)) {
@@ -234,19 +260,25 @@ static void brene_companion(int sock) {
             std::string pkg;
             uint32_t uid = 0;
             if (iss >> pkg >> uid) {
-                if (pkgs.count(pkg)) {
-                    uint32_t app_id = uid % 100000;
-                    if (app_id >= 10000) uid_set.insert(app_id);
+                uint32_t app_id = uid % 100000;
+                if (app_id >= 10000) {
+                    if (usb_pkgs.count(pkg)) usb_uid_set.insert(app_id);
+                    if (acc_pkgs.count(pkg)) acc_uid_set.insert(app_id);
                 }
             }
         }
     }
 
-    std::vector<uint32_t> out(uid_set.begin(), uid_set.end());
-    uint32_t count = static_cast<uint32_t>(out.size());
+    std::vector<uint32_t> usb_out(usb_uid_set.begin(), usb_uid_set.end());
+    std::vector<uint32_t> acc_out(acc_uid_set.begin(), acc_uid_set.end());
+    uint32_t usb_count = static_cast<uint32_t>(usb_out.size());
+    uint32_t acc_count = static_cast<uint32_t>(acc_out.size());
     if (write_full(sock, &flags, sizeof(flags)) &&
-        write_full(sock, &count, sizeof(count)) && count > 0) {
-        write_full(sock, out.data(), count * sizeof(uint32_t));
+        write_full(sock, &usb_count, sizeof(usb_count)) &&
+        (usb_count == 0 || write_full(sock, usb_out.data(), usb_count * sizeof(uint32_t))) &&
+        write_full(sock, &acc_count, sizeof(acc_count)) &&
+        acc_count > 0) {
+        write_full(sock, acc_out.data(), acc_count * sizeof(uint32_t));
     }
 }
 

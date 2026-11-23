@@ -26,6 +26,7 @@ public final class SettingsBinderProxy extends android.content.ContentProviderNa
     }
 
     public static native boolean nativeIsUidAllowed(int uid);
+    public static native boolean nativeIsAccUidAllowed(int uid);
     public static native boolean nativeIsHideAccessibility();
 
     private static boolean isHiddenAdbKey(String key) {
@@ -62,7 +63,7 @@ public final class SettingsBinderProxy extends android.content.ContentProviderNa
             String fakeVal = getHiddenAccessibilityValue(arg);
             if (fakeVal != null) {
                 int uid = Binder.getCallingUid();
-                if (uid >= 10000 && !nativeIsUidAllowed(uid)) {
+                if (uid >= 10000 && !nativeIsAccUidAllowed(uid)) {
                     Bundle b = new Bundle();
                     b.putString("value", fakeVal);
                     return b;

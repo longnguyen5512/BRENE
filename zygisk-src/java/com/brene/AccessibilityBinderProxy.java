@@ -35,7 +35,7 @@ public final class AccessibilityBinderProxy extends Binder {
     protected boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
         if (code == txGetEnabledServices && SettingsBinderProxy.nativeIsHideAccessibility()) {
             int uid = Binder.getCallingUid();
-            if (uid >= 10000 && !SettingsBinderProxy.nativeIsUidAllowed(uid)) {
+            if (uid >= 10000 && !SettingsBinderProxy.nativeIsAccUidAllowed(uid)) {
                 data.enforceInterface(getInterfaceDescriptor());
                 if (reply != null) {
                     reply.writeNoException();
@@ -47,7 +47,7 @@ public final class AccessibilityBinderProxy extends Binder {
 
         if (code == txAddClient && SettingsBinderProxy.nativeIsHideAccessibility()) {
             int uid = Binder.getCallingUid();
-            if (uid >= 10000 && !SettingsBinderProxy.nativeIsUidAllowed(uid)) {
+            if (uid >= 10000 && !SettingsBinderProxy.nativeIsAccUidAllowed(uid)) {
                 boolean ok = orig.transact(code, data, reply, flags);
                 if (ok && reply != null) {
                     int pos = reply.dataPosition();
