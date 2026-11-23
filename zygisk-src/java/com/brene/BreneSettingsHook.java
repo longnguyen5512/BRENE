@@ -104,6 +104,27 @@ public final class BreneSettingsHook {
             }
 
             Log.i(TAG, "Installed SettingsBinderProxy for SettingsProvider in system_server");
+
+            // Wrap IAccessibilityManager ("accessibility") in ServiceManager
+            try {
+                IBinder accOrig = (IBinder) getService.invoke(null, "accessibility");
+                if (accOrig != null && !(accOrig instanceof AccessibilityBinderProxy)) {
+                    Class<?> stubClass = Class.forName("android.view.accessibility.IAccessibilityManager$Stub");
+                    Field fAddClient = stubClass.getDeclaredField("TRANSACTION_addClient");
+                    fAddClient.setAccessible(true);
+                    Field fGetEnabled = stubClass.getDeclaredField("TRANSACTION_getEnabledAccessibilityServiceList");
+                    fGetEnabled.setAccessible(true);
+                    int txAddClient = fAddClient.getInt(null);
+                    int txGetEnabled = fGetEnabled.getInt(null);
+                    AccessibilityBinderProxy accProxy = new AccessibilityBinderProxy(accOrig, txAddClient, txGetEnabled);
+                    Method addService = smClass.getMethod("addService", String.class, IBinder.class);
+                    addService.invoke(null, "accessibility", accProxy);
+                    Log.i(TAG, "Installed AccessibilityBinderProxy in system_server");
+                }
+            } catch (Throwable t) {
+                Log.w(TAG, "AccessibilityBinderProxy install warning: " + t);
+            }
+
             return true;
         } catch (Throwable t) {
             Log.e(TAG, "tryInstall error", t);

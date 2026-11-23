@@ -168,7 +168,7 @@ export function HidingTab({ config, onToggle }) {
 				/>
 				<CardRow
 					title={t('Hide Accessibility')}
-					subtitle={t('Hide Accessibility Services from apps (Settings.Secure)')}
+					subtitle={t('Hide Accessibility Services from apps (Settings.Secure & AccessibilityManager)')}
 					right={
 						<M3Switch
 							checked={!!config.hide_accessibility}
