@@ -1,3 +1,5 @@
 BRENE.zip
+BRENE-*.zip
 node_modules
 pnpm-lock.yaml
+zygisk-src/build/

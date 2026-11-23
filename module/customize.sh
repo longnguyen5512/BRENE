@@ -86,6 +86,7 @@ custom_sus_path.txt
 custom_sus_path_loop.txt
 custom_open_redirect.txt
 custom_sus_path_uid_filter.txt
+usb_debug_allow_apps.txt
 remove_sus_dir_sdcard_android_data_media_obb.txt
 hide_data_local_tmp_exceptions.txt
 hide_non_standard_sdcard_paths_exceptions.txt
@@ -120,7 +121,12 @@ update_config_date
 [[ -d "${PERSISTENT_DIR}/fake_files" ]] && rm -rf "${PERSISTENT_DIR}/fake_files"
 mkdir -p "${PERSISTENT_DIR}/fake_files"
 
-# Hot install support
-if [[ "${KSU_HAS_HOT_INSTALL}" == true ]]; then
-	export MODULE_HOT_INSTALL_REQUEST=true
-fi
+# Ensure tools/susfs and zygisk binaries are executable after KernelSU/Hybrid Mount install
+set_perm_recursive "${MODPATH}/tools" 0 0 0755 0755
+set_perm_recursive "${MODPATH}/zygisk" 0 0 0755 0755
+
+# Hot install disabled: BRENE modifies ro.* properties (resetprop -c --force) and
+# early SUSFS hooks that must run at boot rather than live on a running system.
+# if [[ "${KSU_HAS_HOT_INSTALL}" == true ]]; then
+# 	export MODULE_HOT_INSTALL_REQUEST=true
+# fi

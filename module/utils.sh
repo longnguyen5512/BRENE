@@ -18,7 +18,10 @@ brene_clone_perm() {
 		return 1
 	fi
 
-	read -r permission owner group < <(busybox stat -c "%a %U %G" "${FROM}")
+	set -- $(busybox stat -c "%a %U %G" "${FROM}")
+	permission="$1"
+	owner="$2"
+	group="$3"
 
 	busybox chmod "${permission}" "${TO}"
 	busybox chown "${owner}":"${group}" "${TO}"
@@ -117,8 +120,6 @@ spoof_system_properties() {
 	else
 		if_prop_exits_resetprop_n "sys.oem_unlock_allowed" "0"
 	fi
-
-	resetprop -c --force
 }
 
 spoof_os_security_patch_level_property() {
@@ -180,4 +181,38 @@ brene_open_redirect() {
 brene_kernel_umount() {
 	${KSU_BIN} kernel notify-module-mounted
 	${KSU_BIN} kernel umount add -f 2 "$1" 2> /dev/null
+}
+apply_usb_debug_allow_apps() {
+	local param="/sys/module/unix/parameters/jdwp_allow_uids"
+	local list_file="${PERSISTENT_DIR}/usb_debug_allow_apps.txt"
+	local uids=""
+	[ -w "${param}" ] || return 0
+	if [ -f "${list_file}" ]; then
+		uids=$(awk '
+			NR==FNR {
+				gsub(/^[[:space:]]+|[[:space:]]+$/, "", $0)
+				if ($0 != "" && substr($0, 1, 1) != "#") allow[$0] = 1
+				next
+			}
+			($1 in allow) {
+				u = int($2) % 100000
+				if (u >= 10000 && !(u in seen)) {
+					seen[u] = 1
+					out = out (out ? "," : "") u
+				}
+			}
+			END { print out }
+		' "${list_file}" /data/system/packages.list 2>/dev/null)
+	fi
+	printf '%s' "${uids}" > "${param}" 2>/dev/null || true
+
+	local tls_param="/sys/module/unix/parameters/adb_tls_port"
+	if [ -w "${tls_param}" ]; then
+		local tls_port
+		tls_port=$(getprop service.adb.tls.port 2>/dev/null)
+		case "${tls_port}" in
+			''|*[!0-9]*) tls_port=0 ;;
+		esac
+		printf '%s' "${tls_port}" > "${tls_param}" 2>/dev/null || true
+	fi
 }

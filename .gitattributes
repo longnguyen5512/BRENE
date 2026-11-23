@@ -1,2 +1,9 @@
 * text eol=lf
 *.jpg binary
+*.png binary
+*.webp binary
+*.so binary
+*.zip binary
+*.class binary
+*.jar binary
+*.dex binary

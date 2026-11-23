@@ -1,0 +1,53 @@
+@import "tailwindcss";
+@import "./theme.css";
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+	-webkit-tap-highlight-color: transparent;
+}
+
+:root {
+	--m3-ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+	background-color: var(--md-sys-color-surface);
+	color: var(--md-sys-color-on-surface);
+	font-family:
+		Roboto,
+		system-ui,
+		-apple-system,
+		'Segoe UI',
+		Arial,
+		sans-serif;
+	font-size: 14px;
+	line-height: 1.45;
+	-webkit-font-smoothing: antialiased;
+	overflow-x: hidden;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+	display: none;
+}
+.no-scrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+.safe-top {
+	padding-top: max(var(--top-inset, 0px), env(safe-area-inset-top, 0px));
+}
+
+.safe-bottom {
+	padding-bottom: calc(max(var(--bottom-inset, 0px), env(safe-area-inset-bottom, 0px)) + 24px);
+}
+
+.safe-x {
+	padding-left: max(var(--left-inset, 0px), env(safe-area-inset-left, 0px));
+	padding-right: max(var(--right-inset, 0px), env(safe-area-inset-right, 0px));
+}
