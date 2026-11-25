@@ -25,6 +25,11 @@ public final class SettingsBinderProxy extends android.content.ContentProviderNa
         this.orig = orig;
     }
 
+    @Override
+    public String getProviderName() {
+        return "settings";
+    }
+
     public static native boolean nativeIsUidAllowed(int uid);
     public static native boolean nativeIsAccUidAllowed(int uid);
     public static native boolean nativeIsHideAccessibility();

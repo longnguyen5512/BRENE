@@ -125,6 +125,22 @@ public final class BreneSettingsHook {
                 Log.w(TAG, "AccessibilityBinderProxy install warning: " + t);
             }
 
+            // Wrap IActivityManager ("activity") in ServiceManager to strip "adb" from USB_STATE sticky broadcast
+            try {
+                if (ams instanceof IBinder && !(ams instanceof ActivityBinderProxy)) {
+                    Class<?> amStubClass = Class.forName("android.app.IActivityManager$Stub");
+                    Field fReg = amStubClass.getDeclaredField("TRANSACTION_registerReceiverWithFeature");
+                    fReg.setAccessible(true);
+                    int txReg = fReg.getInt(null);
+                    ActivityBinderProxy actProxy = new ActivityBinderProxy((IBinder) ams, txReg);
+                    Method addService = smClass.getMethod("addService", String.class, IBinder.class, boolean.class);
+                    addService.invoke(null, "activity", actProxy, true);
+                    Log.i(TAG, "Installed ActivityBinderProxy in system_server");
+                }
+            } catch (Throwable t) {
+                Log.w(TAG, "ActivityBinderProxy install warning: " + t);
+            }
+
             return true;
         } catch (Throwable t) {
             Log.e(TAG, "tryInstall error", t);
