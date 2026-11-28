@@ -101,6 +101,9 @@ fi
 if [[ "${config_hide_vector_injection}" == "1" ]]; then
 	brene_sus_map "/data/adb/modules/zygisk_vector/zygisk/arm64-v8a.so"
 	brene_sus_map "/data/adb/modules/zygisk_vector/zygisk/armeabi-v7a.so"
+	# Unmount Vector's dex2oat bind-mounts from app mount namespaces by default
+	brene_kernel_umount "/apex/com.android.art/bin/dex2oat32"
+	brene_kernel_umount "/apex/com.android.art/bin/dex2oat64"
 fi
 
 # Spoof /system/lib64/libstagefright.so
