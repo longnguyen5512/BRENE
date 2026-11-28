@@ -6,7 +6,7 @@ KSU_MODULES_DIR=/data/adb/modules
 SUSFS_BIN=/data/adb/ksu/bin/susfs
 PERSISTENT_DIR=/data/adb/brene
 DEST_BIN_DIR=/data/adb/ksu/bin
-CUSTOM_ROM_NAMES="lineage|infinity|evolution|crdroid|mistos|axion|pixelos|rising|lunaris|halcyon|havoc|alphadroid|bliss|calyx|derpfest|graphene|lmodroid|lumine|matrixx|clover|yaap|aospa"
+CUSTOM_ROM_NAMES="lineage|infinity|evolution|crdroid|mistos|axion|pixelos|rising|lunaris|halcyon|havoc|alphadroid|bliss|calyx|derpfest|graphene|lmodroid|lumine|matrixx|clover|yaap|aospa|omni|nikgapps|libremobileos|chaldea"
 
 # Load utils
 [[ -e "${MODDIR}/utils.sh" ]] && source "${MODDIR}/utils.sh"
@@ -314,6 +314,15 @@ if [[ "${config_rom_props}" == "1" ]]; then
 	done
 
 	resetprop -d "ro.modversion"
+	resetprop -d "sys.lineage_settings_system_version"
+	if_prop_exits_resetprop_n "ro.build.host" "abfarm-us-west1-c-0001"
+
+	# Replace Generic System identifiers with device values
+	if_prop_exits_resetprop_n "ro.product.system.brand" "google"
+	if_prop_exits_resetprop_n "ro.product.system.device" "redfin"
+	if_prop_exits_resetprop_n "ro.product.system.manufacturer" "Google"
+	if_prop_exits_resetprop_n "ro.product.system.model" "Pixel 5"
+	if_prop_exits_resetprop_n "ro.product.system.name" "redfin"
 fi
 
 # Remove Play Integrity Fix Properties
@@ -390,12 +399,20 @@ if [[ "${config_hide_gapps}" == "1" ]]; then
 	done
 fi
 
+# Hide /dev/socket/adbd from non-root apps via SUSFS & apply per-app @jdwp-control allowlist
+brene_sus_path_loop "/dev/socket/adbd"
+apply_usb_debug_allow_apps
+
 # Hide Custom ROM Paths
 if [[ "${config_hide_custom_rom_paths}" == "1" ]]; then
 	for i in ${CUSTOM_ROM_NAMES//|/ }; do
 		find /system /system_ext /vendor /product -iname "*${i}*" | while read -r path; do
 			brene_sus_map "${path}"
-			brene_sus_path_loop "${path}"
+			case "${path}" in
+				# Keep framework/overlay APKs openable for AppZygote and system apps (e.g. OmniJaws) openable by their own UID
+				*/framework/*|*/overlay/*|*-res.apk|*/app/*|*/priv-app/*) ;;
+				*) brene_sus_path_loop "${path}" ;;
+			esac
 		done
 
 		find /data -maxdepth 1 -iname "*${i}*" | while read -r path; do
@@ -410,8 +427,33 @@ if [[ "${config_hide_custom_rom_paths_2}" == "1" ]]; then
 	for i in ${CUSTOM_ROM_NAMES//|/ }; do
 		find /data/misc /data/dalvik-cache /data/resource-cache -iname "*${i}*" | while read -r path; do
 			brene_sus_map "${path}"
-			brene_sus_path_loop "${path}"
+			case "${path}" in
+				*platform-res*|*/framework/*|/data/resource-cache/*|*overlay*|*idmap*) ;;
+				*) brene_sus_path_loop "${path}" ;;
+			esac
 		done
+	done
+
+	# Scrub remaining ROM/aosp_redfin/overlay maps from /proc/<pid>/maps (sus_map only, never sus_path on overlays)
+	for kw in aosp_redfin org.aosp AxSandbox AxThemeStore PixelParts AppLocker BatteryStatsViewer GameSpace; do
+		find /system /system_ext /vendor /product /data/resource-cache -iname "*${kw}*" 2>/dev/null | while read -r path; do
+			brene_sus_map "${path}"
+		done
+	done
+
+	# Hide readable SELinux policy/context & ROM-specific sysconfig/permission files from uid >= 10000
+	for rom_meta_file in \
+		/system_ext/etc/selinux/system_ext_sepolicy.cil \
+		/system_ext/etc/selinux/system_ext_service_contexts \
+		/system_ext/etc/selinux/system_ext_file_contexts \
+		/vendor/etc/selinux/vendor_service_contexts \
+		/vendor/etc/selinux/plat_pub_versioned.cil \
+		/system_ext/etc/permissions/privapp-permissions-axthemestore.xml \
+		/system_ext/etc/permissions/privapp-permissions-axsandbox.xml \
+		/product/etc/permissions/privapp-permissions-pixelparts.xml \
+		/product/etc/sysconfig/initial-package-stopped-states-aosp.xml \
+		/product/etc/sysconfig/preinstalled-packages-platform-aosp-product.xml; do
+		[[ -e "${rom_meta_file}" ]] && brene_sus_path_loop "${rom_meta_file}"
 	done
 fi
 
@@ -444,7 +486,6 @@ if [[ "${config_hide_all_apps_with_uid_10000_and_above}" == "1" ]]; then
 fi
 
 update_config_date
-resetprop -c --force
 
 if [[ "${config_brene_logs}" == "1" ]]; then
 	echo "✅ post-boot.sh" >> "${PERSISTENT_DIR}/log.txt"
